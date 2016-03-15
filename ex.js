@@ -25,10 +25,10 @@ function insertSql()
 {
 	var fs = require("fs");
 	var fsEx = require('fs-extra');
-	var xx = fs.readdirSync('E:/workplace/about_job/importExcel/undone');
+	var xx = fs.readdirSync('E:/workplace/about_job/importExcel/file');
 	for (var key in xx) 
 	{
-		var file_name = 'E:/workplace/about_job/importExcel/undone/' + xx[key];
+		var file_name = 'E:/workplace/about_job/importExcel/file/' + xx[key];
 		sqlAction(file_name);
 	}
 
