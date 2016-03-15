@@ -73,7 +73,6 @@ function sqlAction(filename)
 		    var selectString = "select * from everyday_position where pos_date = $1 and acct = $2\
 		    and seccode = $3;";
 
-		   console.log(a, transName(b), c);
 		
 			pg.connect(conString, function(err, client, done) {
 						if(err) {
@@ -89,10 +88,38 @@ function sqlAction(filename)
 									console.log(err);
 									throw err;
 									}
-									if(result.rowCount == 1)
-										console.log(c + "已经在数据库中了");
-									else
-										console.log(c + "不在数据库中了");
+									if(result.rowCount == 0){
+										console.log(a + " "+ b + " " + c + "不在数据库中");
+										for(var i in SecuCode)
+										{
+											if(seccode == SecuCode[i])
+												d = "ETF";
+											else
+												d = "STOCK";
+										}
+										var conString = "postgres://postgres:ZZS2012@58.83.196.218/position_db";
+										var insertString = "insert into everyday_position values ($1, $2, $3, $4, $5, \
+										$6, $7, $8, $9, $10);";
+										pg.connect(conString, function(err, client, done) {
+													if(err) {
+													throw err;
+													}
+													client.query(insertString,[a, transName(b), c, d, e, f, g, h, i, j], 
+															function(err, result) {
+																done();
+
+																if(err) {
+																console.log(err);
+																throw err;
+																}
+																console.log(result);
+															});
+										});
+
+
+
+									}
+							
 								});
 					});
 	});
