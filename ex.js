@@ -1,8 +1,4 @@
-
 var sqlAction = require('./updateSql.js');
-
-
-
 readline = require('readline');
 
 var SecuCode = [];
@@ -25,10 +21,10 @@ function insertSql()
 {
 	var fs = require("fs");
 	var fsEx = require('fs-extra');
-	var xx = fs.readdirSync('E:/workplace/about_job/importExcel/file');
+	var xx = fs.readdirSync('E:/workplace/about_job/importExcel/undone');
 	for (var key in xx) 
 	{
-		var file_name = 'E:/workplace/about_job/importExcel/file/' + xx[key];
+		var file_name = 'E:/workplace/about_job/importExcel/undone/' + xx[key];
 		sqlAction(file_name);
 	}
 
