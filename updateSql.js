@@ -62,7 +62,7 @@ function sqlActionInner(filename, callback)
 }
 
 
-function sqlAction(filename)
+function sqlAction(filename, SecuCode)
 {
 	sqlActionInner(filename, function(a, b, c, d, e, f, g, h, i, j) {
 
