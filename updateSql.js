@@ -14,7 +14,6 @@ function sqlActionInner(filename, callback)
 //	if(date != '2016-01-11')
 //		return ;
 
-
 	var workbook = XLSX.readFile(filename);
 	var first_sheet_name = workbook.SheetNames[0];
 	var address_of_cell = 'A5';
@@ -71,10 +70,10 @@ function sqlAction(filename)
 			var conString = "postgres://postgres:ZZS2012@58.83.196.218/position_db";
 
 
-		    var selectString = "select * from everyday_position where seccode = $3 and pos_date = $1\
-		    acct = $2;";
+		    var selectString = "select * from everyday_position where pos_date = $1 and acct = $2\
+		    and seccode = $3;";
 
-		   
+		   console.log(a, transName(b), c);
 		
 			pg.connect(conString, function(err, client, done) {
 						if(err) {
@@ -90,7 +89,10 @@ function sqlAction(filename)
 									console.log(err);
 									throw err;
 									}
-									console.log(result);
+									if(result.rowCount == 1)
+										console.log(c + "已经在数据库中了");
+									else
+										console.log(c + "不在数据库中了");
 								});
 					});
 	});
