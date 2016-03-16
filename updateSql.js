@@ -3,6 +3,54 @@ var XLSX = require('xlsx');
 var transName = function(x) {
 	return 'xingyun' + x +'qi';
 }
+function f3(err, client, done) 
+{
+	if(err) {
+	throw err;
+	}
+	client.query(insertString,[a, transName(b), c, d, e, f, g, h, i, j], 
+			function(err, result) {
+				done();
+
+				if(err) {
+				console.log(err);
+				throw err;
+				}
+				console.log(result);
+			});
+}
+function f2(err, result) 
+{
+	if(err) {
+	console.log(err);
+	throw err;
+	}
+	if(result.rowCount == 0){
+		console.log(a + " "+ b + " " + c + "不在数据库中");
+		
+		for(var i in SecuCode)
+		{
+			if(c == SecuCode[i])
+				d = "ETF";
+			else
+				d = "STOCK";
+		}
+		var conString = "postgres://postgres:ZZS2012@58.83.196.218/position_db";
+		var insertString = "insert into everyday_position values ($1, $2, $3, $4, $5, \
+		$6, $7, $8, $9, $10);";
+		pg.connect(conString, f3);
+	}
+
+}
+
+function f1(err, client, done) 
+{
+	if(err) {
+	throw err;
+	}
+	//						console.log(c, d, a, b,transName(e), f, g);
+	client.query(selectString,[a, transName(b), c], f2);
+}
 
 function sqlActionInner(filename, callback)
 {
@@ -11,9 +59,6 @@ function sqlActionInner(filename, callback)
 
 	date = filename.substr(64, 10);
 	var xingYun = filename.substr(61, 1);
-//	if(date != '2016-01-11')
-//		return ;
-
 	var workbook = XLSX.readFile(filename);
 	var first_sheet_name = workbook.SheetNames[0];
 	var address_of_cell = 'A5';
@@ -58,7 +103,6 @@ function sqlActionInner(filename, callback)
 			callback(date, xingYun, seccode, sectype, size, price, cost_value, market_value, market_asset, cost_asset);
 		}
 	}
-
 }
 
 
@@ -74,54 +118,7 @@ function sqlAction(filename, SecuCode)
 		    and seccode = $3;";
 
 		
-			pg.connect(conString, function(err, client, done) {
-						if(err) {
-						throw err;
-						}
-//						console.log(c, d, a, b,transName(e), f, g);
-						client.query(selectString,
-								[a, transName(b), c], 
-								function(err, result) {
-									done();
-
-									if(err) {
-									console.log(err);
-									throw err;
-									}
-									if(result.rowCount == 0){
-										console.log(a + " "+ b + " " + c + "不在数据库中");
-										for(var i in SecuCode)
-										{
-											if(seccode == SecuCode[i])
-												d = "ETF";
-											else
-												d = "STOCK";
-										}
-										var conString = "postgres://postgres:ZZS2012@58.83.196.218/position_db";
-										var insertString = "insert into everyday_position values ($1, $2, $3, $4, $5, \
-										$6, $7, $8, $9, $10);";
-										pg.connect(conString, function(err, client, done) {
-													if(err) {
-													throw err;
-													}
-													client.query(insertString,[a, transName(b), c, d, e, f, g, h, i, j], 
-															function(err, result) {
-																done();
-
-																if(err) {
-																console.log(err);
-																throw err;
-																}
-																console.log(result);
-															});
-										});
-
-
-
-									}
-							
-								});
-					});
+			pg.connect(conString, f1);
 	});
 	console.log('sqlAction');
 };
