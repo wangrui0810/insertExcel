@@ -3,57 +3,6 @@ var XLSX = require('xlsx');
 var transName = function(x) {
 	return 'xingyun' + x +'qi';
 }
-function f3(insertString, SecuCode, para, err, client, done) 
-{
-	/*
-	if(err) {
-	throw err;
-	}
-	client.query(insertString,[a, transName(b), c, d, e, f, g, h, i, j], 
-			function(err, result) {
-				done();
-
-				if(err) {
-				console.log(err);
-				throw err;
-				}
-				console.log(result);
-			});
-*/
-}
-function f2(SecuCode, para, err, result) 
-{
-	if(err) {
-	console.log(err);
-	throw err;
-	}
-	if(result.rowCount == 0){
-		console.log(para.a + " "+ para.b + " " + para.c + "不在数据库中");
-		
-		for(var i in SecuCode)
-		{
-			if(para.c == SecuCode[i])
-				para.d = "ETF";
-			else
-				para.d = "STOCK";
-		}
-		var conString = "postgres://postgres:ZZS2012@58.83.196.218/position_db";
-		var insertString = "insert into everyday_position values ($1, $2, $3, $4, $5, \
-		$6, $7, $8, $9, $10);";
-		pg.connect(conString, f3.bind(null, insertString, SecuCode, para));
-	}
-
-}
-
-var f1 = function(selectString, SecuCode, para, err, client, done) 
-{
-	if(err) {
-	throw err;
-	}
-	//						console.log(c, d, a, b,transName(e), f, g);
-	client.query(selectString,[para.a, transName(para.b), para.c], f2.bind(null, SecuCode, para));
-}
-
 
 function sqlActionInner(filename, callback)
 {
@@ -62,6 +11,9 @@ function sqlActionInner(filename, callback)
 
 	date = filename.substr(64, 10);
 	var xingYun = filename.substr(61, 1);
+//	if(date != '2016-01-11')
+//		return ;
+
 	var workbook = XLSX.readFile(filename);
 	var first_sheet_name = workbook.SheetNames[0];
 	var address_of_cell = 'A5';
@@ -103,9 +55,10 @@ function sqlActionInner(filename, callback)
 			//看seccode acct date这三个数的查询是否有结果
 			//有的话 不管 没有的话 insert into everyday_position
 
-			callback(date, xingYun, seccode, sectype, size, price, cost_value, market_value, market_asset, cost_asset);
+			callback(date, xingYun, seccode, sectype, size, price, cost_asset, market_asset, market_value, cost_value);
 		}
 	}
+
 }
 
 
@@ -120,8 +73,59 @@ function sqlAction(filename, SecuCode)
 		    var selectString = "select * from everyday_position where pos_date = $1 and acct = $2\
 		    and seccode = $3;";
 
-			var para = {a:a, b:b, c:c, d:d, e:e, f:f, g:g, h:h, i:i, j:j};
-			pg.connect(conString, f1.bind(null, selectString, SecuCode, para));
+		
+			pg.connect(conString, function(err, client, done) {
+						if(err) {
+						throw err;
+						}
+//						console.log(c, d, a, b,transName(e), f, g);
+						client.query(selectString,
+								[a, transName(b), c], 
+								function(err, result) {
+									done();
+
+									if(err) {
+									console.log(err);
+									throw err;
+									}
+									if(result.rowCount == 0){
+										console.log(a + " "+ b + " " + c + "不在数据库中");
+										for(var tmp in SecuCode)
+										{
+											if(c == SecuCode[tmp])
+											{
+												console.log(c + ' is ETF');
+												d = 'ETF';
+											}
+											else
+												d = 'STOCK';
+										}
+										
+										var conString = "postgres://postgres:ZZS2012@58.83.196.218/position_db";
+										var insertString = "insert into everyday_position values ($1, $2, $3, $4, $5, \
+										$6, $7, $8, $9, $10);";
+										pg.connect(conString, function(err, client, done) {
+													if(err) {
+													throw err;
+													}
+													client.query(insertString,[a, transName(b), c, d, e, f, g, h, i, j], 
+															function(err, result) {
+																done();
+
+																if(err) {
+																console.log(err);
+																throw err;
+																}
+																console.log(result);
+															});
+										});
+													
+
+
+									}
+							
+								});
+					});
 	});
 	console.log('sqlAction');
 };
