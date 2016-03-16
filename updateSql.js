@@ -3,8 +3,9 @@ var XLSX = require('xlsx');
 var transName = function(x) {
 	return 'xingyun' + x +'qi';
 }
-function f3(err, client, done) 
+function f3(insertString, SecuCode, para, err, client, done) 
 {
+	/*
 	if(err) {
 	throw err;
 	}
@@ -18,39 +19,41 @@ function f3(err, client, done)
 				}
 				console.log(result);
 			});
+*/
 }
-function f2(err, result) 
+function f2(SecuCode, para, err, result) 
 {
 	if(err) {
 	console.log(err);
 	throw err;
 	}
 	if(result.rowCount == 0){
-		console.log(a + " "+ b + " " + c + "不在数据库中");
+		console.log(para.a + " "+ para.b + " " + para.c + "不在数据库中");
 		
 		for(var i in SecuCode)
 		{
-			if(c == SecuCode[i])
-				d = "ETF";
+			if(para.c == SecuCode[i])
+				para.d = "ETF";
 			else
-				d = "STOCK";
+				para.d = "STOCK";
 		}
 		var conString = "postgres://postgres:ZZS2012@58.83.196.218/position_db";
 		var insertString = "insert into everyday_position values ($1, $2, $3, $4, $5, \
 		$6, $7, $8, $9, $10);";
-		pg.connect(conString, f3);
+		pg.connect(conString, f3.bind(null, insertString, SecuCode, para));
 	}
 
 }
 
-function f1(err, client, done) 
+var f1 = function(selectString, SecuCode, para, err, client, done) 
 {
 	if(err) {
 	throw err;
 	}
 	//						console.log(c, d, a, b,transName(e), f, g);
-	client.query(selectString,[a, transName(b), c], f2);
+	client.query(selectString,[para.a, transName(para.b), para.c], f2.bind(null, SecuCode, para));
 }
+
 
 function sqlActionInner(filename, callback)
 {
@@ -117,8 +120,8 @@ function sqlAction(filename, SecuCode)
 		    var selectString = "select * from everyday_position where pos_date = $1 and acct = $2\
 		    and seccode = $3;";
 
-		
-			pg.connect(conString, f1);
+			var para = {a:a, b:b, c:c, d:d, e:e, f:f, g:g, h:h, i:i, j:j};
+			pg.connect(conString, f1.bind(null, selectString, SecuCode, para));
 	});
 	console.log('sqlAction');
 };
