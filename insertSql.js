@@ -88,8 +88,8 @@ function sqlAction(filename, SecuCode)
 									console.log(err);
 									throw err;
 									}
-									if(result.rowCount == 1){
-										console.log(a + " "+ b + " " + c + "在数据库中");
+									if(result.rowCount == 0){
+										console.log(a + " "+ b + " " + c + "不在数据库中");
 										for(var tmp in SecuCode)
 										{
 											if(c == SecuCode[tmp])
@@ -102,12 +102,13 @@ function sqlAction(filename, SecuCode)
 										}
 										
 										var conString = "postgres://postgres:ZZS2012@192.168.150.27/position_db";
-										var updateString = "update everyday_position set flag = '1' where pos_date = $1 and acct = $2 and seccode = $3;";
+										var insertString = "insert into everyday_position values ($1, $2, $3, $4, $5, \
+										$6, $7, $8, $9, $10);";
 										pg.connect(conString, function(err, client, done) {
 													if(err) {
 													throw err;
 													}
-													client.query(updateString,[a, transName(b), c], 
+													client.query(insertString,[a, transName(b), c, d, e, f, g, h, i, j], 
 															function(err, result) {
 																done();
 
