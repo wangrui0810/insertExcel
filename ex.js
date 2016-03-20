@@ -1,32 +1,36 @@
 var fs = require("fs");
 var fsEx = require('fs-extra');
-var sqlAction = require('./updateSql.js');
+var sqlAction = require('./insertSql.js');
 readline = require('readline');
+var output = require('debug')('app:log');
 
-var SecuCode = [];
-var rd = readline.createInterface({
-    input: fs.createReadStream('./SecuCode.txt'),
-    terminal: false
+var readToMap_ = function (filename, callback) {
+    var SecuCode = {};
+    var rd = readline.createInterface({
+        input: fs.createReadStream(filename),
+        terminal: false
+    });
+    rd.on('line', function (line) {
+        SecuCode[line] = 1;
+    });
+    rd.on('close', function () {
+        callback(SecuCode);
+    });
+};
+
+var insertSql_ = function(fundMap, repoMap, stockMap) {
+    var xx = fs.readdirSync('G:/codes_H/insertExcel/data');
+    for (var key in xx) {
+        var file_name = 'G:/codes_H/insertExcel/data/' + xx[key];
+        sqlAction(file_name, fundMap, repoMap, stockMap);
+    }
+};
+
+readToMap_("./FUND.txt", function(fundMap) {
+    readToMap_("./REPO.txt", function(repoMap) {
+        readToMap_("./STOCK.txt", function(stockMap) {
+            insertSql_(fundMap, repoMap, stockMap);
+        });
+    });
 });
 
-var i = 1;
-rd.on('line', function(line) {
-    SecuCode.push(line);
-    i++;
-});
-rd.on('close', function(){
-	SecuCode[SecuCode.length - 1] = SecuCode[SecuCode.length - 1].substring(0, SecuCode[SecuCode.length - 1].length -1);
-	insertSql();
-})
-
-function insertSql()
-{
-
-	var xx = fs.readdirSync('E:/workplace/about_job/importExcel/undone');
-	for (var key in xx) 
-	{
-		var file_name = 'E:/workplace/about_job/importExcel/undone/' + xx[key];
-		sqlAction(file_name, SecuCode);
-	}
-
-}
